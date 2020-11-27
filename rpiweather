@@ -1,0 +1,42 @@
+#Just fixed BBC RSS reader for LED MATRIX Display MAX7219
+from luma.core.interface.serial import spi, noop
+import time
+from random import randrange
+from luma.led_matrix.device import max7219 
+import luma.led_matrix.device  as led
+from luma.core.legacy.font import proportional, SINCLAIR_FONT, TINY_FONT, CP437_FONT
+import feedparser
+ 
+python_wiki_rss_url = "https://weather-broker-cdn.api.bbci.co.uk/en/forecast/rss/3day/456172"
+ 
+# create matrix device
+serial = spi(port=0, device=0, gpio=noop())
+device = max7219(serial, cascaded=4, block_orientation=-90, blocks_arranged_in_reverse_order=True)
+device.contrast(16)
+print("Created device")
+ 
+while True:
+        print("Getting feed")
+        feed = feedparser.parse( python_wiki_rss_url)
+ 
+        for repeats in range(100):
+                print(repeats)
+                for items in feed["items"]:
+ 
+                        msg = items["title"]
+                        msg = msg[0:msg.find("/")]
+                        print(msg)
+                        show_message(device, msg, fill="white", font=proportional(CP437_FONT))
+                        time.sleep(60)
+# just remove hashtags if you want to see long descriptions
+#                        msg = items["description"]
+ #                       msg = msg[0:msg.find("/")]
+  #                      print(msg)
+   #                     show_message(device, msg, fill="white", font=proportional(CP437_FONT))
+    #                    time.sleep(90)
+ 
+                        msg = time.asctime()
+                        msg= time.strftime("%H:%M")
+                        print(msg)
+                        show_message(device, msg, fill="white", font=proportional(CP437_FONT))
+                        time.sleep(1)
